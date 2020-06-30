@@ -27,3 +27,4 @@ plt.xticks(
     fontsize='medium'
 )
 plt.show()
+plt.get
