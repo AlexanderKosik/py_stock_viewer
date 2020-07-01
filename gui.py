@@ -18,28 +18,55 @@ class MainGUI:
         self.root = Tk()
         self.root.wm_title("Python Stock Viewer")
 
+        row = 0
         self.lbl_stock = Label(master=self.root, text="Ticker: ").grid(column=0, row=0, sticky=W)
         self.txt_stock = Combobox(master=self.root)
         self.txt_stock['values'] = ("ARL.F", "GOOGL", "DBK.DE", "TSLA", "AMZN")
         self.txt_stock.current(0)
-        self.txt_stock.grid(column=1, row=0, sticky=W+E)
+        self.txt_stock.grid(column=1, row=row, sticky=W+E)
         self.txt_stock.bind("<Return>", self._update_stock_chart)
+        row += 1
 
-        self.lbl_avg_short = Label(master=self.root, text="Short AVG: ").grid(column=0, row=1)
+        self.sep1 = Separator(master=self.root, orient="horizontal").grid(column=0, row=row, columnspan=2, sticky=E+W)
+        row += 1
+
+        self.show_short_avg = IntVar(value=1)
+        self.cb_avg_short = Checkbutton(master=self.root, text="Short Average", var=self.show_short_avg, onvalue = 1, offvalue = 0, command=self._update_stock_chart)
+        self.cb_avg_short.grid(column=1, row=row, sticky=W)
+        row += 1
+
+        self.lbl_avg_short = Label(master=self.root, text="Short [Days]: ").grid(column=0, row=row)
         self.txt_avg_short = Spinbox(master=self.root, from_=0.0, to=50, increment=1)
         self.txt_avg_short.set(10)
-        self.txt_avg_short.grid(column=1, row=1)
+        self.txt_avg_short.grid(column=1, row=row)
+        row += 1
 
-        self.lbl_avg_long = Label(master=self.root, text="Long AVG: ").grid(column=0, row=2)
+        self.sep1 = Separator(master=self.root, orient="horizontal").grid(column=0, row=row, columnspan=2, sticky=E+W)
+        row += 1
+
+        self.show_long_avg = IntVar(value=1)
+        self.cb_avg_long = Checkbutton(master=self.root, text="Long Average", var=self.show_long_avg, onvalue=1, offvalue=0, command=self._update_stock_chart)
+        self.cb_avg_long.grid(column=1, row=row, sticky=W)
+        row += 1
+
+        self.lbl_avg_long = Label(master=self.root, text="Long [Days]: ").grid(column=0, row=row)
         self.txt_avg_long = Spinbox(master=self.root, from_=10.0, to=1000, increment=5)
         self.txt_avg_long.set(50)
-        self.txt_avg_long.grid(column=1, row=2)
+        self.txt_avg_long.grid(column=1, row=row)
+        row += 1
+
+        self.sep1 = Separator(master=self.root, orient="horizontal").grid(column=0, row=row, columnspan=2, sticky=E+W)
+        row += 1
+
+
         self.show_divs = IntVar()
         self.cb_show_divs = Checkbutton(master=self.root, text="Show Dividends", var=self.show_divs, onvalue = 1, offvalue = 0)
-        self.cb_show_divs.grid(column=1, row=3, sticky=W)
+        self.cb_show_divs.grid(column=1, row=row, sticky=W)
+        row += 1
 
         # Add a update button
-        self.btn_update = Button(master=self.root, text="Update", command=self._update_stock_chart).grid(column=1, row=4, sticky=W+E)
+        self.btn_update = Button(master=self.root, text="Update", command=self._update_stock_chart).grid(column=1, row=row, sticky=W+E)
+        row += 1
 
         self._update_stock_chart()
 
@@ -65,8 +92,10 @@ class MainGUI:
             stock_plot = figure.add_subplot(111)
 
         ax = sns.lineplot(hue="Events", dashes=False, markers=True, data=data.closing, label="Closing price", ax=stock_plot)
-        ay = sns.lineplot(hue="Events", dashes=False, markers=True, data=data.avg_short, label="Rolling avg short", ax=stock_plot)
-        az = sns.lineplot(hue="Events", dashes=False, markers=True, data=data.avg_long, label="Rolling avg long", ax=stock_plot)
+        if self.show_short_avg.get() == 1:
+            ay = sns.lineplot(hue="Events", dashes=False, markers=True, data=data.avg_short, label="Rolling avg short", ax=stock_plot)
+        if self.show_long_avg.get() == 1:
+            az = sns.lineplot(hue="Events", dashes=False, markers=True, data=data.avg_long, label="Rolling avg long", ax=stock_plot)
 
         return figure
 
@@ -74,7 +103,7 @@ class MainGUI:
         self.figure = self._create_stock_chart()
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.root)
         self.canvas.draw()
-        self.canvas.get_tk_widget().grid(column=2, row=0, rowspan=25)
+        self.canvas.get_tk_widget().grid(column=2, row=0, rowspan=45)
 
 
 sns.set()
